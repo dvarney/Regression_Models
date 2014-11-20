@@ -11,7 +11,7 @@ output: html_document
 
 In this report for Motor Trend Magazine, regression analysis reveiled changes in Miles per Gallon (MPG) with various features and makes of 32 automobiles. In a simplistic model, automatic vs manual transmission types showed that the manual transmission is 7.25 MPG better than a automatic transmission. With cylinder, displacement, horsepower, and weight as part of the equation, a multi-parameter regression model indicated that the manual transmission is 1.81 MPG better than the automatic transmission while the goodness of fit reached ~87%.
 
-Analysis software, output files and data are available at this [gitHub location](https://github.com/dvarney/Regression_Models)
+Analysis software, output files and data are at [gitHub location](https://github.com/dvarney/Regression_Models)
 
 ####Exploratory Data Analysis
 
@@ -42,6 +42,8 @@ The dataset was converted from numeric values to factor values, and subsequently
 
 ```{r, echo=FALSE}
 data(mtcars)
+write.table(mtcars, file='C:/Users/Doug/My Documents/GitHub/Regression_Models/mtcars.txt', sep=',')
+
 mtcars$am   <- as.factor(mtcars$am)     #transmission types
 mtcars$cyl  <- as.factor(mtcars$cyl)    #number of cylinders
 mtcars$gear <- as.factor(mtcars$gear)   #number of gears
