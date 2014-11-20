@@ -11,15 +11,11 @@ output: html_document
 
 In this report for Motor Trend Magazine, regression analysis reveiled changes in Miles per Gallon (MPG) with various features and makes of 32 automobiles. In a simplistic model, automatic vs manual transmission types showed that the manual transmission is 7.25 MPG better than a automatic transmission. With cylinder, displacement, horsepower, and weight as part of the equation, a multi-parameter regression model indicated that the manual transmission is 1.81 MPG better than the automatic transmission while the goodness of fit reached ~87%.
 
+Analysis software, output files and data are available at this [gitHub location](https://github.com/dvarney/Regression_Models)
 
 ####Exploratory Data Analysis
 
 The features of the data file, *mtcars*, for 32 vehicles with 11 characteristics is described in Table 1. Vehicles from the Honda Civic to the Lotus Europa and Maserati Bora were reviewed. Surprisingly, a Cadillac and Lincoln automobile were rated poorly, with the Lotus near the top. Lotus' fiberglass body probably contributed to the surprising performance for this expensive storts car. See Appendix for additional Tables and Figures.
-
-require(knitr)
-require(markdown)
-knit2html("motor_trend_analysis.Rmd", encoding="ISO8859-1")  
-#markdownToHTML("motor_trend_analysis.md", "motor_trend_analysis.html")
 
 To investivate the initial data, mpg vs automatic and manual, along with a density, Figure 1 & 2, were generated and inspected for insight. Definitions of the variables are listed below. For more details, see Table 1.
 
@@ -42,7 +38,7 @@ library(car)
 ```
 ####Methods
 
-The dataset was converted numeric values to factor values, and subsequently MPG against five other variables. The p-values shows cylinder count, displacement in cubic centimeters (cc) and weight were significant predictors for MPG as the combined outcome.
+The dataset was converted from numeric values to factor values, and subsequently MPG against five other variables. The p-values shows that the cylinder count, displacement in cubic centimeters (cc) and weight were significant predictors for MPG as the combined outcome.
 
 ```{r, echo=FALSE}
 data(mtcars)
