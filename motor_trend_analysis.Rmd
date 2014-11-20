@@ -1,0 +1,140 @@
+---
+title: false
+author: "dvarney"
+date: "Thursday, November 20, 2014"
+output: html_document    
+---
+
+###$$Motor Trend - Vehicle Analysis$$
+
+####Abstract
+
+In this report for Motor Trend Magazine, regression analysis reveiled changes in Miles per Gallon (MPG) with various features and makes of 32 automobiles. In a simplistic model, automatic vs manual transmission types showed that the manual transmission is 7.25 MPG better than a automatic transmission. With cylinder, displacement, horsepower, and weight as part of the equation, a multi-parameter regression model indicated that the manual transmission is 1.81 MPG better than the automatic transmission while the goodness of fit reached ~87%.
+
+
+####Exploratory Data Analysis
+
+The features of the data file, *mtcars*, for 32 vehicles with 11 characteristics is described in Table 1. Vehicles from the Honda Civic to the Lotus Europa and Maserati Bora were reviewed. Surprisingly, a Cadillac and Lincoln automobile were rated poorly, with the Lotus near the top. Lotus' fiberglass body probably contributed to the surprising performance for this expensive storts car. See Appendix for additional Tables and Figures.
+
+require(knitr)
+require(markdown)
+knit2html("motor_trend_analysis.Rmd", encoding="ISO8859-1")  
+#markdownToHTML("motor_trend_analysis.md", "motor_trend_analysis.html")
+
+To investivate the initial data, mpg vs automatic and manual, along with a density, Figure 1 & 2, were generated and inspected for insight. Definitions of the variables are listed below. For more details, see Table 1.
+
+```{r dotpointprint, results='asis', echo=FALSE}
+a <- 1:11
+b <- c("[mpg] Miles/(US) gallon", "[cyl] Number of cylinders", "[disp] Engine displacement (cu.in.)",
+       "[hp] Gross horsepower", "[drat]	Rear axle ratio", "[wt] Weight (lb/1000)",
+       "[qsec] 1/4 mile time","[vs]	V/S (unknown)", "[am]	Transmission (0 = automatic, 1 = manual)", 
+       "[gear] Number of forward gears", "[carb]	Number of carburetors")
+y <- data.frame(a,b)
+
+cat(paste("* ", y[,1],"  ",y[,2], sep="    ", collapse="\n"))
+
+```
+
+```{r,include=FALSE}
+library(ggplot2)
+library(car)
+
+```
+####Methods
+
+The dataset was converted numeric values to factor values, and subsequently MPG against five other variables. The p-values shows cylinder count, displacement in cubic centimeters (cc) and weight were significant predictors for MPG as the combined outcome.
+
+```{r, echo=FALSE}
+data(mtcars)
+mtcars$am   <- as.factor(mtcars$am)     #transmission types
+mtcars$cyl  <- as.factor(mtcars$cyl)    #number of cylinders
+mtcars$gear <- as.factor(mtcars$gear)   #number of gears
+mtcars$carb <- as.factor(mtcars$carb)   #carborator
+mtcars$vs   <- as.factor(mtcars$vs)     #unknown
+```
+
+The calculation of variance-inflation, which is used for linear and generalized linear models, as in this report, showed that four factors, cylinder, displacement, horsepower and weight were highly corelated with each other. See Table 3.
+
+
+####Linear Models
+
+Multivariate models were used to analyze multiple parameters by adding extra variables to a single variable model. Considering the p-values and variability inflation, cylinders, displacement, weight and horsepower were selected for the regression model. The *p-value* is the probability of obtaining a value as numerically large as or larger that the observed *t*-tests, which are based on the assumption that the data is *normally distributed* (data builds a bell-curve shaped). Each variable was added to the model, along with the transmission type. A analysis of variance using the ANOVA function, showed the degree of freedom and p-values of each model, Table 1-3.
+
+```{r, echo=FALSE}
+fit1 <- lm(formula = mpg~am, data = mtcars)
+fit2 <- lm(formula = mpg~am+cyl, data = mtcars)
+fit3 <- lm(formula = mpg~am+cyl+disp, data = mtcars)
+fit4 <- lm(formula = mpg~am+cyl+disp+wt, data = mtcars)
+fit5 <- lm(formula = mpg~am+cyl+disp+wt+hp, data = mtcars)
+```
+```{r}
+anova(fit1,fit2,fit3,fit4,fit5)
+summary(fit1)$coefficients[1:2,] #single variable model
+summary(fit5)$coefficients[1:2,] #multivariate model
+```
+
+####Discussion
+
+In the multivariate model, the manual transmission is 1.81 mpg better than automatic transmission. R-squared is a commonly used measure of the overall fit of the regression model, which in this instance, there is an increased of *goodness of fit* from 36% to ~87%. The residuals of fit5 are shown in Figure 3.
+
+```{r}
+c(summary(fit1)$r.squared, summary(fit5)$r.squared)
+```
+
+
+####Appendix
+
+Table 1, Summary of the *mtcars* dataset
+```{r, echo=FALSE}
+head(mtcars[c(1:6,15,16,28),],9)
+```
+Table 2, Analysis of Variance
+```{r, echo=FALSE}
+fit <- lm(mpg~.,data=mtcars)                #build model mpg over others
+summary(aov(fit))                           #analysis of variance function
+```
+Table 3, Variance-inflation
+```{r, echo=FALSE}
+vf <- vif(fit)                              #calculate variance inflation
+head(vf[order(vf[,3], decreasing=TRUE),],4) #sort the result in descending order
+```
+
+```{r,fig.height=4,echo=FALSE}
+#change transmission field to character to use "auto" and "manual" instead of 0 or 1
+mtcars[,9] <- as.character(mtcars[,9])
+
+for (i in 1:nrow(mtcars))
+    {
+    if (mtcars$am[i] == 1) 
+        {mtcars[i,9] <- "manual"}
+    else
+        {mtcars[i,9] <- "auto"}
+    }
+```
+Figure 1, Number of cars within bin size (MPG + 0.5) for MPG per Transmission
+
+```{r, echo=FALSE}
+ggplot(mtcars) +
+    geom_histogram(aes(x=mpg, fill=am), color="black", binwidth=0.5) +
+    scale_color_manual(values=c(manual="blue", auto="red")) +   
+    ggtitle("Total MPG per Bin vs Car Transmission Type")     
+```
+
+Figure 2, MPG vs Transmission
+
+```{r, echo=FALSE}
+ggplot(mtcars) +
+    geom_density(aes(x=mpg, color=am)) +
+    scale_color_manual(values=c("manual"="red", "auto"="blue")) +
+    ggtitle("MPG vs Car Transmission Type")     
+```
+
+Figure 3, Residual Plots
+```{r,fig.height=6}
+par(mfrow=c(2,2))
+plot(fit5)
+```
+
+
+
+
